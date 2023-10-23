@@ -31,8 +31,8 @@ def generate_java_code(VB_ast):
             java_code += f"End If\n"
 
     elif VB_ast.type == "WHILE_STATEMENT":
-        condition = generate_java_code(pascal_ast.children[0])
-        loop_body = generate_java_code(pascal_ast.children[1])
+        condition = generate_java_code(VB_ast.children[0])
+        loop_body = generate_java_code(VB_ast.children[1])
         java_code += f"While ({condition}) \n"
         java_code += f"{loop_body}\n"
         java_code += f"End While\n"

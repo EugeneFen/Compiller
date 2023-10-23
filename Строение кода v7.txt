@@ -1,0 +1,44 @@
+<program> ::= <statement_list>
+
+<statement_list> ::= <statement> | <statement> <statement_list>
+
+<statement> ::= <if_statement> |
+		<While_statement> |
+		<function_statement> |
+		<list_statement>|
+		<announcement_value> |
+		<expression>
+
+<if_statement> ::= 	"If" "(" <expression> ")" "Then" <statement_list> "End If" |
+			"If" "(" <expression> ")" "Then" <statement_list> "Else" <statement_list> "End If"
+
+<While_statement> ::= "While" "(" <expression> ")" <statement_list> "End While"
+
+<function_statement> ::= "Fucnction" <name> "As" <type> <statement_list> "Return" <statement_list> "End Function"
+
+<list_statement> ::= "Dim" <id> "As" "New" "List" "(" "Of" <type_str> ")" "(" <integer> ")"
+
+<announcement_value>  ::= "Dim" <id> "As" <type_str> |
+			  "Dim" <id> "As" <type_str> "=" <type>
+
+<expression> ::= <term> | <expression> <additive_operator> <term> | <expression> <relational_operator> <term>
+
+<term> ::= <factor> | <factor> <multiplicative_operator> <term>
+
+<factor> ::= <type> | '(' <expression> ')' | <id>
+
+<type> ::= <integer> | <string> | <char> | <boolean>
+<type_str> ::= Integer | String | Char | Boolean
+
+<relational_operator> ::= '=' | '<>' | '<' | '>'
+<additive_operator> ::= '+' | '-'
+<multiplicative_operator> ::= '*' | '/'
+
+<name> ::= <letter><name> | <letter><brackets>
+<count> ::= <number><count> | <number>
+<id> ::= <letter> | <letter><id2>
+<id2> ::= <letter> | <number> | <number><id2> | <letter><id2> | "_"<id2>
+<integer> ::= <number> | <number><int>
+<letter> ::= "a" | "b" | ... | "z"
+<number> ::= "1" | "2" | ... | "9" | "0"
+<brackets> ::= "()"

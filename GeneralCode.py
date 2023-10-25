@@ -1,40 +1,40 @@
-def generate_java_code(VB_ast):
-    java_code = ""
+from parse import Parser
+from lexer import Lexer
 
-    if VB_ast.type == "PROGRAM":
-        # Генерация заголовка программы
-        program_name = VB_ast.children[0].value
-        java_code += f"#include <iostream>\n\n"
-        java_code += f"int main()\n"
+class General_code:
+    def generate_java_code(self, VB_ast):
+        java_code = ""
 
-        # Генерация остальной части программы
-        statement_list = VB_ast.children[0]
-        java_code += generate_java_code(statement_list)
+        print(VB_ast.node_type, " \n")
 
-        # Завершение программы
-        java_code += f"\n    return 0;\n"
+        if VB_ast.node_type == Parser.PROGRAM:
+            for i in range(len(VB_ast.children)):
+                self.generate_java_code(VB_ast.children[i])
 
-    elif VB_ast.type == "STATEMENT_LIST":
-        for statement in VB_ast.children:
-            java_code += generate_java_code(statement)
+        elif VB_ast.node_type == Parser.IF_STATEMENT:
+            condition = self.generate_java_code(VB_ast.children[0])
+            if_body = self.generate_java_code(VB_ast.children[1])
+            java_code += f"If ({condition}) \n"
+            java_code += "{"
+            java_code += f"{if_body}\n"
+            java_code += "}"
+            if len(VB_ast.children) > 2:
+                else_body = self.generate_java_code(VB_ast.children[2])
+                java_code += f" else \n"
+                java_code += f"{else_body}\n"
 
-    elif VB_ast.type == "IF_STATEMENT":
-        condition = generate_java_code(VB_ast.children[0])
-        if_body = generate_java_code(VB_ast.children[1])
-        else_body = generate_java_code(VB_ast.children[2])
-        java_code += f"If ({condition}) \n"
-        java_code += f"{if_body}\n"
-        java_code += f"End If"
-        if else_body:
-            java_code += f" else \n"
-            java_code += f"{else_body}\n"
-            java_code += f"End If\n"
+        elif VB_ast.node_type == Parser.ID or \
+              VB_ast.node_type == Parser.INTEGER or \
+              VB_ast.node_type == Parser.DOUBLE or \
+              VB_ast.node_type == Parser.STRING or \
+              VB_ast.node_type == Parser.CHAR or \
+              VB_ast.node_type == Parser.TRUE or \
+              VB_ast.node_type == Parser.FALSE:
+            java_code += f"{VB_ast.value}  "
 
-    elif VB_ast.type == "WHILE_STATEMENT":
-        condition = generate_java_code(VB_ast.children[0])
-        loop_body = generate_java_code(VB_ast.children[1])
-        java_code += f"While ({condition}) \n"
-        java_code += f"{loop_body}\n"
-        java_code += f"End While\n"
+        elif VB_ast.node_type == Parser.ADDITION:
+            value_term = self.generate_java_code(VB_ast.children[0])
+            value_right = self.generate_java_code(VB_ast.children[1])
+            java_code += f"{value_term} + {value_right} \n"
 
         return java_code

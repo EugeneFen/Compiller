@@ -5,8 +5,7 @@
 <statement> ::= <if_statement> |
 		<While_statement> |
 		<function_statement> |
-		<list_statement>|
-		<announcement_value> |
+		<dim_statement> |
 		<expression>
 
 <if_statement> ::= 	"If" "(" <expression> ")" "Then" <statement_list> "End If" |
@@ -14,12 +13,11 @@
 
 <While_statement> ::= "While" "(" <expression> ")" <statement_list> "End While"
 
-<function_statement> ::= "Fucnction" <name> "As" <type> <statement_list> "Return" <statement_list> "End Function"
+<function_statement> ::= "Fucnction" <name> "As" <type_str> <statement_list> "Return" <statement_list> "End Function"
 
-<list_statement> ::= "Dim" <id> "As" "New" "List" "(" "Of" <type_str> ")" "(" <integer> ")"
-
-<announcement_value>  ::= "Dim" <id> "As" <type_str> |
-			  "Dim" <id> "As" <type_str> "=" <type>
+<dim_statement> ::= "Dim" <id> "As" "New" "List" "(" "Of" <type_str> ")" "(" <integer> ")" |
+		    "Dim" <id> "As" <type_str> |
+		    "Dim" <id> "As" <type_str> "=" <type>
 
 <expression> ::= <term> | <expression> <additive_operator> <term> | <expression> <relational_operator> <term>
 

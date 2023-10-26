@@ -91,9 +91,3 @@ class General_code:
             code = VB_ast.value
             print(VB_ast.value, "Type \n")
             return code
-
-
-
-
-
-

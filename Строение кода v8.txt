@@ -2,11 +2,15 @@
 
 <statement_list> ::= <statement> | <statement> <statement_list>
 
-<statement> ::= <if_statement> |
+<statement> ::= <module_statement> |
+		<if_statement> |
 		<While_statement> |
 		<function_statement> |
+		<sub_statement> |
 		<dim_statement> |
 		<expression>
+
+<module_statement> ::= "Module" <id> <statement_list> "End Module"
 
 <if_statement> ::= 	"If" "(" <expression> ")" "Then" <statement_list> "End If" |
 			"If" "(" <expression> ")" "Then" <statement_list> "Else" <statement_list> "End If"
@@ -14,6 +18,8 @@
 <While_statement> ::= "While" "(" <expression> ")" <statement_list> "End While"
 
 <function_statement> ::= "Fucnction" <name> "As" <type_str> <statement_list> "Return" <statement_list> "End Function"
+
+<sub_statement> :: = "Sub" <name> <statement_list> "End Sub"
 
 <dim_statement> ::= "Dim" <id> "As" "New" "List" "(" "Of" <type_str> ")" "(" <integer> ")" |
 		    "Dim" <id> "As" <type_str> |
@@ -32,11 +38,13 @@
 <additive_operator> ::= '+' | '-'
 <multiplicative_operator> ::= '*' | '/'
 
-<name> ::= <letter><name> | <letter><brackets>
+<name> ::= <letter><name> | <letter>"("<brackets>")"
 <count> ::= <number><count> | <number>
 <id> ::= <letter> | <letter><id2>
 <id2> ::= <letter> | <number> | <number><id2> | <letter><id2> | "_"<id2>
 <integer> ::= <number> | <number><int>
 <letter> ::= "a" | "b" | ... | "z"
 <number> ::= "1" | "2" | ... | "9" | "0"
-<brackets> ::= "()"
+
+<brackets> ::= <id>"As"<type_str> | <id>"As"<type_str>","<brackets> | <id>"As"<type_str>","<option> | "ByVal"<id>"As"<type_str> | "ByVal"<id>"As"<type_str>","<brackets> | "ByVal"<id>"As"<type_str>","<option> |  "ByRef"<id>"As"<type_str> | "ByRef"<id>"As"<type_str>","<brackets> | "ByRef"<id>"As"<type_str>","<option>
+<option> :: = "Optional"<id>"As"<type_str>"="<type> | "Optional"<id>"As"<type_str>"="<type>","<option>

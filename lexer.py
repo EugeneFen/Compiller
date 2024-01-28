@@ -22,7 +22,7 @@ class Lexer:
     LCB, RCB, COMMA, AND, OR, NOT, THEN, ELSE, ELSEIF, SELECT, \
     CASE, FUNCTION, UPCOMMAS, RETURN, SUB, NEW, FROM, ADD, REMOVE, INDEXOF, \
     DIM, AS, TO, IN, TRUE, FALSE, ENDIF, ENDFUNC, ENDSUB, ENDMODULE, \
-    FUNCTIONCALL, ENDWHILE, LISTF, OF, INTEGERT, DOUBLET, STRINGT, CHART, BOOLEANT=  range(69) 
+    FUNCTIONCALL, ENDWHILE, LISTF, OF, INTEGERT, DOUBLET, STRINGT, CHART, BOOLEANT, UPCOM=  range(70)
 
     SYMBOLS = {
         '(': LBR,
@@ -39,7 +39,8 @@ class Lexer:
         '{': LCB,
         '}': RCB,
         ',': COMMA,
-        '"': UPCOMMAS
+        '"': UPCOMMAS,
+        "'": UPCOM
     }
 
     WORDS  = {
@@ -121,20 +122,20 @@ class Lexer:
         self.state = None
         self.value = None
         while self.state is None:
-            #first step
+            #
             if self.curr_char is None or self.curr_char == "\t":
                 self.get_char()
-            # end of file
+            #
             if self.curr_char == '':
                 self.state = Lexer.EOF
             # comment
             elif self.curr_char == "'":
                 start_comment = self.curr_char
-                self.get_char()                
+                self.get_char()
                 while self.curr_char not in ['', '\n', ',']:
                     self.get_char()
                 if self.curr_char == "\n":
-                    self.get_char()                
+                    self.get_char()
             # whitespaces
             elif self.curr_char in [' ', '\n']:
                 self.get_char()
@@ -151,15 +152,27 @@ class Lexer:
                 else:
                     self.state = Lexer.STRING
             # symbols
-            elif self.curr_char in Lexer.SYMBOLS: 
+            elif self.curr_char in Lexer.SYMBOLS:
                 if self.curr_char == '<':
                     self.get_char()
                     if self.curr_char == '>':
                         self.state = Lexer.SYMBOLS["<>"]
                         self.value = "<>"
+                        self.get_char()
                     else:
                         self.state = Lexer.SYMBOLS["<"]
                         self.value = "<"
+                # comments
+                # elif self.curr_char == "'":
+                #     start_comment = self.curr_char
+                #     self.get_char()
+                #     while self.curr_char not in ['', '\n']:
+                #         start_comment += self.curr_char
+                #         self.get_char()
+                #     if self.curr_char == "\n":
+                #         self.get_char()
+                #     self.state = Lexer.SYMBOLS["'"]
+                #     self.value = start_comment
                 else:
                     self.state = Lexer.SYMBOLS[self.curr_char]
                     self.value = self.curr_char

@@ -13,12 +13,14 @@ class General_code:
 
         if VB_ast.node_type == Parser.PROGRAM:
             for i in range(len(VB_ast.children)):
+                print(f"{VB_ast.children} 1")
                 java_code += self.general_statement(VB_ast.children[i])
         print(java_code)
 
     def get_expression_list(self, VB_ast):
         java_code = ""
         for i in range(len(VB_ast.children)):
+            print(f"{VB_ast.children} 2")
             java_code += self.general_statement(VB_ast.children[i])
         return java_code
 
@@ -26,13 +28,15 @@ class General_code:
         type_get = self.get_expression(VB_ast)
         if VB_ast.node_type == Parser.IF_STATEMENT:
             return self.general_if_statement(VB_ast)
+        elif VB_ast.node_type == Parser.WHILE_STATEMENT:
+            return self.general_while_statement(VB_ast)
         elif VB_ast.node_type == Parser.EXPRESSION_STATEMENT:
             code = ""
             #print(len(VB_ast.children))
             for i in range(len(VB_ast.children)):
-                code += f" {self.get_expression_statement(VB_ast.children[i])}"
-            return f"{code} \n"
-        return f"{type_get} \n"
+                code += f"{self.get_expression_statement(VB_ast.children[i])}"
+            return f"{code}"
+        return f"{type_get}"
 
     def general_if_statement(self, VB_ast):
         java_code = ""
@@ -40,14 +44,24 @@ class General_code:
         if_body = self.get_expression_list(VB_ast.children[1]) #!!!!!!!!!!!!
         java_code += f"If ({condition}) \n"
         java_code += "{ \n"
-        java_code += f"  {if_body}"
+        java_code += f"{if_body}"
         java_code += "} \n"
         if len(VB_ast.children) > 2:
             else_body = self.general_statement(VB_ast.children[2].children[0]) #!!!!!!!!!!!!!
             java_code += f"Else \n"
             java_code += "{ \n"
-            java_code += f"  {else_body}"
-            java_code += "}"
+            java_code += f"{else_body}"
+            java_code += "} \n"
+        return java_code
+
+    def general_while_statement(self, VB_ast):
+        java_code = ""
+        condition = self.general_statement(VB_ast.children[0])
+        while_body = self.get_expression_list(VB_ast.children[1])
+        java_code += f"While ({condition}) \n"
+        java_code += "{ \n"
+        java_code += f"{while_body}"
+        java_code += "} \n"
         return java_code
 
     def get_expression(self, VB_ast):
@@ -55,51 +69,51 @@ class General_code:
         if VB_ast.node_type == Parser.ADDITION:
             if VB_ast.children[1].children:
                 chill = self.get_expression(VB_ast.children[1])
-                term = f"{VB_ast.children[0].value} + {chill}"
+                term = f"{VB_ast.children[0].value} + {chill}  "
             else:
-                term = f"{VB_ast.children[0].value} + {VB_ast.children[1].value}"
+                term = f"{VB_ast.children[0].value} + {VB_ast.children[1].value}  "
         elif VB_ast.node_type == Parser.SUBTRACTION:
             if VB_ast.children[1].children:
                 chill = self.get_expression(VB_ast.children[1])
-                term = f" {VB_ast.children[0].value} - {chill} "
+                term = f"{VB_ast.children[0].value} - {chill} \n"
             else:
-                term = f" {VB_ast.children[0].value} - {VB_ast.children[1].value} "
+                term = f"{VB_ast.children[0].value} - {VB_ast.children[1].value} \n"
         elif VB_ast.node_type == Parser.COMPARISON_EQ:
             if VB_ast.children[1].children:
                 chill = self.get_expression(VB_ast.children[1])
-                term = f" {VB_ast.children[0].value} = {chill} "
+                term = f"{VB_ast.children[0].value} = {chill} ;\n"
             else:
-                term = f" {VB_ast.children[0].value} = {VB_ast.children[1].value} "
+                term = f"{VB_ast.children[0].value} = {VB_ast.children[1].value} ;\n"
         elif VB_ast.node_type == Parser.COMPARISON_LE:
             if VB_ast.children[1].children:
                 chill = self.get_expression(VB_ast.children[1])
-                term = f" {VB_ast.children[0].value} < {chill} "
+                term = f"{VB_ast.children[0].value} < {chill}  "
             else:
-                term = f"{VB_ast.children[0].value} < {VB_ast.children[1].value}"
+                term = f"{VB_ast.children[0].value} < {VB_ast.children[1].value}  "
         elif VB_ast.node_type == Parser.COMPARISON_MO:
             if VB_ast.children[1].children:
                 chill = self.get_expression(VB_ast.children[1])
-                term = f" {VB_ast.children[0].value} > {chill} "
+                term = f"{VB_ast.children[0].value} > {chill}  "
             else:
-                term = f"{VB_ast.children[0].value} > {VB_ast.children[1].value}"
+                term = f"{VB_ast.children[0].value} > {VB_ast.children[1].value}  "
         elif VB_ast.node_type == Parser.COMPARISON_NOTEQ:
             if VB_ast.children[1].children:
                 chill = self.get_expression(VB_ast.children[1])
-                term = f" {VB_ast.children[0].value} <> {chill} "
+                term = f"{VB_ast.children[0].value} <> {chill}  "
             else:
-                term = f" {VB_ast.children[0].value} <> {VB_ast.children[1].value} "
+                term = f"{VB_ast.children[0].value} <> {VB_ast.children[1].value}  "
         elif VB_ast.node_type == Parser.MULTIPLICATION:
             if VB_ast.children[1].children:
                 chill = self.get_expression(VB_ast.children[1])
-                term = f" {VB_ast.children[0].value} * {chill} "
+                term = f"{VB_ast.children[0].value} * {chill} \n"
             else:
-                term = f" {VB_ast.children[0].value} * {VB_ast.children[1].value} "
+                term = f"{VB_ast.children[0].value} * {VB_ast.children[1].value} \n"
         elif VB_ast.node_type == Parser.DIVISION:
             if VB_ast.children[1].children:
                 chill = self.get_expression(VB_ast.children[1])
-                term = f" {VB_ast.children[0].value} / {chill} "
+                term = f"{VB_ast.children[0].value} / {chill} \n"
             else:
-                term = f" {VB_ast.children[0].value} / {VB_ast.children[1].value} "
+                term = f"{VB_ast.children[0].value} / {VB_ast.children[1].value} \n"
         return term
 
     def get_special_words(self, VB_ast):
@@ -127,12 +141,6 @@ class General_code:
               VB_ast.node_type == Parser.CHART or \
               VB_ast.node_type == Parser.FALSE or \
               VB_ast.node_type == Parser.BOOLEANT:
-            code = f"{VB_ast.value}"
+            code = VB_ast.value
             return code
         return f"Not value {VB_ast.value}"
-
-
-
-
-
-

@@ -19,7 +19,7 @@ class Parser:
     START, MODULE, ELSE_STATEMENT, IF_STATEMENT, THEN_STATEMENT, WHILE_STATEMENT, PROGRAM, ADDITION, SUBTRACTION, DIVISION, \
     MULTIPLICATION, EXPRESSION_STATEMENT, ID_LPAREN, INTEGER, DOUBLE, CHAR, STRING, TRUE, FALSE, ID, \
     COMPARISON_EQ, COMPARISON_LE, COMPARISON_MO, COMPARISON_NOTEQ, FUNCT_STATEMENT, FUNCTIONCALL, LISTF, EOF, INTEGERT, DOUBLET, \
-    STRINGT, CHART, BOOLEANT, DIMV, PROGRAM, AND = range(36) #?
+    STRINGT, CHART, BOOLEANT, DIMV, PROGRAM, AND, WHILE_BODY = range(37) #?
 
     def __init__(self, lexer):
         self.file = open('Debugging.txt','w')
@@ -77,15 +77,15 @@ class Parser:
             return self.parse_if_statement()
         elif self.current_token.type == Lexer.WHILE:
             return self.parse_while_statement()
-        elif self.current_token.type == Lexer.FUNCTION:
-            return self.parse_function_statement()
-        elif self.current_token.type == Lexer.DIM:
-            return self.parse_dim_statement()
+        # elif self.current_token.type == Lexer.FUNCTION:
+        #     return self.parse_function_statement()
+        # elif self.current_token.type == Lexer.DIM:
+        #     return self.parse_dim_statement()
         else:
             return self.parse_expression_statement()
 
     def parse_if_statement(self):
-        self.match(Lexer.IF) # if if then step
+        self.match(Lexer.IF)
         self.match(Lexer.LBR)
         expression = self.parse_expression()
         self.match(Lexer.RBR)
@@ -96,7 +96,7 @@ class Parser:
             else_statement = Node(self.ELSE_STATEMENT, value="Else", children=[self.parse_statement_list()])
             self.match(Lexer.ENDIF)
             return Node(self.IF_STATEMENT, value="If", children=[expression, statement_list, else_statement])
-        self.match(Lexer.ENDIF) #!!!!!!!!!!!!
+        self.match(Lexer.ENDIF)
         return Node(self.IF_STATEMENT, value="If", children=[expression, statement_list])
 
     def parse_while_statement(self):
@@ -104,51 +104,51 @@ class Parser:
         self.match(Lexer.LBR)
         expression = self.parse_expression()
         self.match(Lexer.RBR)
-        statement_list = self.parse_statement_list()
+        statement_list =Node(self.WHILE_BODY, value="Body", children=[self.parse_statement_list()])
         self.match(Lexer.ENDWHILE)
         return Node(self.WHILE_STATEMENT, value="While", children=[expression, statement_list])
 
 
-    def parse_function_statement(self):
-        self.match(Lexer.FUNCTION)
-        id_value = Node(self.FUNCTIONCALL, value=self.current_token.value)
-        self.match(Lexer.FUNCTIONCALL)
-        self.match(Lexer.AS)
-        ptype = self.parse_type_str()
-        statement_list = self.parse_statement_list()        
-        self.match(Lexer.RETURN)
-        statement_list_ret = self.parse_statement_list()
-        self.match(Lexer.ENDFUNC)
-        return Node(self.FUNCT_STATEMENT, value="Function", children=[id_value, ptype, statement_list, statement_list_ret])
+    # def parse_function_statement(self):
+    #     self.match(Lexer.FUNCTION)
+    #     id_value = Node(self.FUNCTIONCALL, value=self.current_token.value)
+    #     self.match(Lexer.FUNCTIONCALL)
+    #     self.match(Lexer.AS)
+    #     ptype = self.parse_type_str()
+    #     statement_list = self.parse_statement_list()
+    #     self.match(Lexer.RETURN)
+    #     statement_list_ret = self.parse_statement_list()
+    #     self.match(Lexer.ENDFUNC)
+    #     return Node(self.FUNCT_STATEMENT, value="Function", children=[id_value, ptype, statement_list, statement_list_ret])
 
-    def parse_dim_statement(self):
-        self.match(Lexer.DIM)
-        value = self.parse_identifier()
-        if self.symbol_table.check(value.value):
-            
-            self.match(Lexer.AS)
-            if self.current_token.type == Lexer.NEW:
-                self.match(Lexer.NEW)        
-                self.match(Lexer.LISTF)
-                self.match(Lexer.LBR)
-                self.match(Lexer.OF)
-                type_list = self.parse_type_str()
-                self.match(Lexer.RBR)
-                self.match(Lexer.LBR)
-                count_list = Node(self.INTEGER, value=self.current_token.value)
-                self.match(Lexer.INTEGER)
-                self.match(Lexer.RBR)
-                self.symbol_table.set(value.value, "List", type_list.value)
-                return Node(self.LISTF, value="List", children=[value, type_list, count_list])
-            else:
-                type_list = self.parse_type_str()
-                self.symbol_table.set(value.value, type_list.value)
-                if self.current_token.type == Lexer.EQUAL:
-                    self.match(Lexer.EQUAL)
-                    ptype = self.parse_type()
-                    return Node(self.DIMV, value="DIMVAL", children=[value, type_list, ptype])
-                return Node(self.DIMV, value="DIMVAL", children=[value, type_list])
-        self.error(f"This variable already exists: {value.value}")
+    # def parse_dim_statement(self):
+    #     self.match(Lexer.DIM)
+    #     value = self.parse_identifier()
+    #     if self.symbol_table.check(value.value):
+    #
+    #         self.match(Lexer.AS)
+    #         if self.current_token.type == Lexer.NEW:
+    #             self.match(Lexer.NEW)
+    #             self.match(Lexer.LISTF)
+    #             self.match(Lexer.LBR)
+    #             self.match(Lexer.OF)
+    #             type_list = self.parse_type_str()
+    #             self.match(Lexer.RBR)
+    #             self.match(Lexer.LBR)
+    #             count_list = Node(self.INTEGER, value=self.current_token.value)
+    #             self.match(Lexer.INTEGER)
+    #             self.match(Lexer.RBR)
+    #             self.symbol_table.set(value.value, "List", type_list.value)
+    #             return Node(self.LISTF, value="List", children=[value, type_list, count_list])
+    #         else:
+    #             type_list = self.parse_type_str()
+    #             self.symbol_table.set(value.value, type_list.value)
+    #             if self.current_token.type == Lexer.EQUAL:
+    #                 self.match(Lexer.EQUAL)
+    #                 ptype = self.parse_type()
+    #                 return Node(self.DIMV, value="DIMVAL", children=[value, type_list, ptype])
+    #             return Node(self.DIMV, value="DIMVAL", children=[value, type_list])
+    #     self.error(f"This variable already exists: {value.value}")
 
     def parse_expression(self):
         term = self.parse_factor()

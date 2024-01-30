@@ -44,25 +44,24 @@ class Lexer:
     }
 
     WORDS  = {
+        'Integer': INTEGERT,
+        'Double': DOUBLET,
+        'String': STRINGT,
+        'Char': CHART,
+        'Boolean': BOOLEANT,
+        
         'And': AND,
         'Or': OR,
         'Not': NOT,
         'End Select': ENDSELECT,
         'End Function': ENDFUNC,
         'End While': ENDWHILE,
-        'End Sub': ENDSUB,
-        'Module': MODULE,
-        'End Module': ENDMODULE,
-    
-        'Integer': INTEGERT,
-        'Double': DOUBLET,
-        'String': STRINGT,
-        'Char': CHART,
-        'Boolean': BOOLEANT,
-    
+        'End Sub': ENDSUB, #!!!!!!
+        'Module': MODULE, #!!!!!
+        'End Module': ENDMODULE, #!!!!!    
         'For': FOR,
-        'Next': NEXT, #!!!!
-        'Step': STEP, #!!!!
+        'Next': NEXT,
+        'Step': STEP,
         'Each': EACH, #!!!
         'While': WHILE,
         'Do': DO, #!!!!
@@ -73,21 +72,21 @@ class Lexer:
         'Else': ELSE,
         'End If': ENDIF,
         'ElseIf': ELSEIF, #!!!!
-        'Select': SELECT, #!!!!
-        'Case': CASE, #!!!!
-        'Function': FUNCTION,
-        'Return': RETURN,
+        'Select': SELECT,
+        'Case': CASE,
+        'Function': FUNCTION, #!!!!!
+        'Return': RETURN,#!!!!!!
         'Sub': SUB, #!!!!
-        'New': NEW,
-        'From': FROM,
+        'New': NEW, #!!!!
+        'From': FROM, #!!!!
         'Add': ADD, #!!!!
         'RemoveAt': REMOVE, #!!!!
         'IndexOf':INDEXOF, #!!!!
         'Dim': DIM,
         'As': AS,
-        'List':LISTF,
+        'List':LISTF, #!!!!
         'To': TO,
-        'Of': OF,
+        'Of': OF, #!!!!!
         'In': IN, #!!!!
         'True': TRUE,
         'False': FALSE,
@@ -192,8 +191,9 @@ class Lexer:
                     while self.curr_char.isdigit():
                         number += self.curr_char
                         self.get_char()
-                    if self.curr_char.isdigit() == False and self.curr_char != ' ' or number[
-                        len(number) - 1] == '.':
+                    if self.curr_char.isalpha() or \
+                            (self.curr_char != ' ' and self.curr_char != '\n') or \
+                            number[len(number) - 1] == '.':
                         self.error(f'Invalid number ')
 
                     self.state = Lexer.DOUBLE
@@ -203,7 +203,9 @@ class Lexer:
             # id, keywords and reserved names
             elif self.curr_char.isalpha():
                 variable = ""
-                while self.curr_char.isalpha() or self.curr_char.isdigit() or self.curr_char == '_':
+                while self.curr_char.isalpha() or \
+                        self.curr_char.isdigit() or \
+                        self.curr_char == '_':
                     variable += self.curr_char
                     self.get_char()
                 if variable == "End":                    

@@ -19,7 +19,8 @@ class Parser:
     START, MODULE, ELSE_STATEMENT, IF_STATEMENT, THEN_STATEMENT, WHILE_STATEMENT, PROGRAM, ADDITION, SUBTRACTION, DIVISION, \
     MULTIPLICATION, EXPRESSION_STATEMENT, ID_LPAREN, INTEGER, DOUBLE, CHAR, STRING, TRUE, FALSE, ID, \
     COMPARISON_EQ, COMPARISON_LE, COMPARISON_MO, COMPARISON_NOTEQ, FUNCT_STATEMENT, FUNCTIONCALL, LISTF, EOF, INTEGERT, DOUBLET, \
-    STRINGT, CHART, BOOLEANT, DIMV, PROGRAM, AND, WHILE_BODY = range(37) #?
+    STRINGT, CHART, BOOLEANT, DIMV, PROGRAM, AND, WHILE_BODY, CASE_BODY, TOCASE, CASE, \
+    CASE_ELSE, CASE_INNER_BODY, FOR_BODY, FOR = range(44) #?
 
     def __init__(self, lexer):
         self.file = open('Debugging.txt','w')
@@ -43,7 +44,7 @@ class Parser:
     def match(self, expected_type): #requests a new token from the lexer
         if self.current_token.type == expected_type:
                 self.current_token = self.lexer.get_token()
-
+                print(f"{self.current_token.value}  match")
                 self.file.write(str(self.current_token.type))
                 self.file.write(" , ")
                 self.file.write(str(self.current_token.value))
@@ -64,11 +65,14 @@ class Parser:
         if self.current_token.type != Lexer.EOF and \
             self.current_token.type != Lexer.ELSE and \
             self.current_token.type != Lexer.ENDIF and \
+            self.current_token.type != Lexer.ENDSELECT and \
             self.current_token.type != Lexer.RETURN and \
+            self.current_token.type != Lexer.CASE and \
             self.current_token.type != Lexer.ENDFUNC and \
+            self.current_token.type != Lexer.NEXT and \
             self.current_token.type != Lexer.ENDWHILE:
-                statement_list = self.parse_statement_list()
-                statement.add_child(statement_list) 
+                #print(f"{self.current_token.value} 3")
+                statement.add_child(self.parse_statement_list())
         return statement
 
 
@@ -77,10 +81,12 @@ class Parser:
             return self.parse_if_statement()
         elif self.current_token.type == Lexer.WHILE:
             return self.parse_while_statement()
-        # elif self.current_token.type == Lexer.FUNCTION:
-        #     return self.parse_function_statement()
-        # elif self.current_token.type == Lexer.DIM:
-        #     return self.parse_dim_statement()
+        elif self.current_token.type == Lexer.SELECT:
+            return self.parse_select_statement()
+        elif self.current_token.type == Lexer.FOR:
+            return self.parse_for_statement()
+        elif self.current_token.type == Lexer.DIM:
+            return self.parse_dim_statement()
         else:
             return self.parse_expression_statement()
 
@@ -121,34 +127,75 @@ class Parser:
     #     self.match(Lexer.ENDFUNC)
     #     return Node(self.FUNCT_STATEMENT, value="Function", children=[id_value, ptype, statement_list, statement_list_ret])
 
-    # def parse_dim_statement(self):
-    #     self.match(Lexer.DIM)
-    #     value = self.parse_identifier()
-    #     if self.symbol_table.check(value.value):
-    #
-    #         self.match(Lexer.AS)
-    #         if self.current_token.type == Lexer.NEW:
-    #             self.match(Lexer.NEW)
-    #             self.match(Lexer.LISTF)
-    #             self.match(Lexer.LBR)
-    #             self.match(Lexer.OF)
-    #             type_list = self.parse_type_str()
-    #             self.match(Lexer.RBR)
-    #             self.match(Lexer.LBR)
-    #             count_list = Node(self.INTEGER, value=self.current_token.value)
-    #             self.match(Lexer.INTEGER)
-    #             self.match(Lexer.RBR)
-    #             self.symbol_table.set(value.value, "List", type_list.value)
-    #             return Node(self.LISTF, value="List", children=[value, type_list, count_list])
-    #         else:
-    #             type_list = self.parse_type_str()
-    #             self.symbol_table.set(value.value, type_list.value)
-    #             if self.current_token.type == Lexer.EQUAL:
-    #                 self.match(Lexer.EQUAL)
-    #                 ptype = self.parse_type()
-    #                 return Node(self.DIMV, value="DIMVAL", children=[value, type_list, ptype])
-    #             return Node(self.DIMV, value="DIMVAL", children=[value, type_list])
-    #     self.error(f"This variable already exists: {value.value}")
+    def parse_select_statement(self):
+        self.match(Lexer.SELECT)
+        # self.match(Lexer.CASE)
+        # value = self.parse_identifier()
+        # celse = False
+        # self.match(Lexer.CASE)
+        # if self.current_token.type == Lexer.ELSE:
+        #     self.match(Lexer.ELSE)
+        #     statement_list = Node(self.CASE_ELSE, value="Case_Else", children=[self.parse_statement_list()])
+        #     celse = True
+        #
+        # inner_body= Node(self.CASE_INNER_BODY, value="Case_inner_body", children=[self.parse_statement_list()])
+        # if celse:
+        #     tbody = Node(self.CASE_BODY, value="Case_body", children=[inner_body, statement_list])
+        # else:
+        #     tbody = Node(self.CASE_BODY, value="Case_body", children=[inner_body])
+        return Node(self.CASE, value="Case", children=[])
+
+    def parse_for_statement(self):
+        self.match(Lexer.FOR)
+        id_value = self.parse_identifier()
+        str_as = ""
+        if self.current_token.type == Lexer.AS:
+            self.match(Lexer.AS)
+            str_as = self.get_parse_type()
+        self.match(Lexer.EQUAL)
+        first_value = self.parse_type()
+        self.match(Lexer.TO)
+        second_value = self.parse_type()
+        body_for = Node(self.FOR_BODY, value="For_Body", children=[self.parse_statement_list()])
+        self.match(Lexer.NEXT)
+        if int(first_value.value) > int(second_value.value):
+            up_down = Node(self.STRING, value="down", children=[])
+        else:
+            up_down = Node(self.STRING, value="up", children=[])
+        if str_as:
+            return Node(self.FOR, value="For", children=[up_down, id_value, str_as, first_value, second_value, body_for])
+        else:
+            return Node(self.FOR, value="For", children=[up_down, id_value, first_value, second_value, body_for])
+
+    def get_parse_type(self):
+        if self.current_token.type == Lexer.INTEGERT:
+            int_value = Node(self.INTEGERT, value=self.current_token.value)
+            self.match(Lexer.INTEGERT)
+            return int_value
+        elif self.current_token.type == Lexer.DOUBLET:
+            double_value = Node(self.DOUBLET, value=self.current_token.value)
+            self.match(Lexer.DOUBLET)
+            return double_value
+        return Node(self.EOF, value="Not type")
+
+    def parse_dim_statement(self):
+        self.match(Lexer.DIM)
+        value = self.parse_identifier()
+        if self.symbol_table.check(value.value):
+            self.match(Lexer.AS)
+            type_list = self.parse_type_str()
+            self.symbol_table.set(value.value, type_list.value)
+            if self.current_token.type == Lexer.EQUAL:
+                self.match(Lexer.EQUAL)
+                ptype = self.parse_type()
+                return Node(self.DIMV, value="DIMVAL", children=[value, type_list, ptype])
+            return Node(self.DIMV, value="DIMVAL", children=[value, type_list])
+        self.error(f"This variable already exists: {value.value}")
+
+    def parse_exp_case(self):
+        ptype = self.parse_type()
+
+        return ptype
 
     def parse_expression(self):
         term = self.parse_factor()
@@ -190,9 +237,26 @@ class Parser:
             return type_lbrrbr
         return ptype
 
+    def parse_exp_logically(self):
+        ptype = self.parse_type()
+        if self.current_token.type == Lexer.LESS:
+            self.match(Lexer.LESS)
+            return Node(self.COMPARISON_LE, value="LESS", children=[ptype, self.parse_type()])
+        elif self.current_token.type == Lexer.MORE:
+            self.match(Lexer.MORE)
+            return Node(self.COMPARISON_MO, value="MORE", children=[ptype, self.parse_type()])
+        elif self.current_token.type == Lexer.NOTEQUALS:
+            self.match(Lexer.NOTEQUALS)
+            return Node(self.COMPARISON_NOTEQ, value="NOTEQUALS", children=[ptype, self.parse_type()])
+        elif self.current_token.type == Lexer.TO:
+            self.match(Lexer.TO)
+            return Node(self.TOCASE, value="To", children=[ptype, self.parse_type()])
+        return ptype
+
     def parse_type(self):
         if self.current_token.type == Lexer.INTEGER:
             int_value = Node(self.INTEGER, value=self.current_token.value)
+            #print(f"{self.current_token.value} 1")
             self.match(Lexer.INTEGER)
             return int_value
         elif self.current_token.type == Lexer.DOUBLE:

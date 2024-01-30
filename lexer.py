@@ -44,12 +44,6 @@ class Lexer:
     }
 
     WORDS  = {
-        'Integer': INTEGERT,
-        'Double': DOUBLET,
-        'String': STRINGT,
-        'Char': CHART,
-        'Boolean': BOOLEANT,
-        
         'And': AND,
         'Or': OR,
         'Not': NOT,
@@ -58,7 +52,14 @@ class Lexer:
         'End While': ENDWHILE,
         'End Sub': ENDSUB, #!!!!!!
         'Module': MODULE, #!!!!!
-        'End Module': ENDMODULE, #!!!!!    
+        'End Module': ENDMODULE, #!!!!!
+    
+        'Integer': INTEGERT,
+        'Double': DOUBLET,
+        'String': STRINGT,
+        'Char': CHART,
+        'Boolean': BOOLEANT,
+    
         'For': FOR,
         'Next': NEXT,
         'Step': STEP,

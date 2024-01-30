@@ -30,6 +30,8 @@ class General_code:
             return self.general_if_statement(VB_ast)
         elif VB_ast.node_type == Parser.WHILE_STATEMENT:
             return self.general_while_statement(VB_ast)
+        elif VB_ast.node_type == Parser.FOR:
+            return self.general_for_statement(VB_ast)
         elif VB_ast.node_type == Parser.EXPRESSION_STATEMENT:
             code = ""
             #print(len(VB_ast.children))
@@ -63,6 +65,50 @@ class General_code:
         java_code += f"{while_body}"
         java_code += "} \n"
         return java_code
+
+    def general_for_statement(self, VB_ast):
+        java_code = ""
+        up_down = self.general_statement(VB_ast.children[0])
+        condition = self.general_statement(VB_ast.children[1])
+        if len(VB_ast.children) == 6:
+            str_as = self.get_str_type(VB_ast.children[2])
+            first_value = self.general_statement(VB_ast.children[3])
+            second_value = self.general_statement(VB_ast.children[4])
+            body_for = self.get_expression_list(VB_ast.children[5])
+            if up_down == "up":
+                java_code += f"For ({str_as} {condition} = {first_value}; {condition} < {second_value}; {condition}++) "
+            else:
+                java_code += f"For ({str_as} {condition} = {first_value}; {condition} > {second_value}; {condition}--) "
+            java_code += "{ \n"
+            java_code += f"{body_for} "
+            java_code += "} \n"
+        else:
+            first_value = self.general_statement(VB_ast.children[2])
+            second_value = self.general_statement(VB_ast.children[3])
+            body_for = self.get_expression_list(VB_ast.children[4])
+            str_as = self.get_value_type(VB_ast.children[2])
+            if up_down == "up":
+                java_code += f"For ({str_as} {condition} = {first_value}; {condition} < {second_value}; {condition}++) "
+            else:
+                java_code += f"For ({str_as} {condition} = {first_value}; {condition} > {second_value}; {condition}--) "
+            java_code += "{ \n"
+            java_code += f"{body_for} "
+            java_code += "} \n"
+        return java_code
+
+    def get_value_type(self, VB_ast):
+        if VB_ast.node_type == Parser.INTEGER:
+            return "int"
+        elif VB_ast.node_type == Parser.DOUBLE:
+            return "double"
+        return self.error(f"Not value {VB_ast.value}")
+
+    def get_str_type(self, VB_ast):
+        if VB_ast.node_type == Parser.INTEGERT:
+            return "int"
+        elif VB_ast.node_type == Parser.DOUBLET:
+            return "double"
+        return self.error(f"Not type {VB_ast.value}")
 
     def get_expression(self, VB_ast):
         term = self.get_special_words(VB_ast)
@@ -143,4 +189,4 @@ class General_code:
               VB_ast.node_type == Parser.BOOLEANT:
             code = VB_ast.value
             return code
-        return f"Not value {VB_ast.value}"
+        return f"Not value type {VB_ast.value}"

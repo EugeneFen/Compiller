@@ -32,6 +32,10 @@ class General_code:
             return self.general_while_statement(VB_ast)
         elif VB_ast.node_type == Parser.FOR:
             return self.general_for_statement(VB_ast)
+        elif VB_ast.node_type == Parser.WRITE:
+            return self.general_write_statement(VB_ast)
+        elif VB_ast.node_type == Parser.WRITELINE:
+            return self.general_writeline_statement(VB_ast)
         elif VB_ast.node_type == Parser.EXPRESSION_STATEMENT:
             code = ""
             #print(len(VB_ast.children))
@@ -109,6 +113,12 @@ class General_code:
         elif VB_ast.node_type == Parser.DOUBLET:
             return "double"
         return self.error(f"Not type {VB_ast.value}")
+
+    def general_write_statement(self, VB_ast): #more children
+        return f"System.out.print({VB_ast.children[0].value});"
+
+    def general_writeline_statement(self, VB_ast):
+        return f"System.out.println({VB_ast.children[0].value});"
 
     def get_expression(self, VB_ast):
         term = self.get_special_words(VB_ast)

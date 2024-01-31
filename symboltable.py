@@ -1,23 +1,24 @@
-class SymbolTable: # таблица символов
+class SymbolTable:
+    symbols = {}
+
     def __init__(self):
-        self.symbols = [] #List
-
-    def set(self, name, symbol_type, symbol_type_two = None): #add
-        symbol_list
-        self.symbols[name] = symbol_type
-
-    def get(self, name): #return
-        return self.symbols.get(name, None)
-
-    def check(self, name): #bool check
-        return name
+        self.symbols = {} #?????
 
 
-    """
-    1) Имя
-    2) Тип
-    3) 2 Тип
-    """
+    def set(self, name, symbol_type):
+        print(name, "Add")
+        if not (name in self.symbols.items()):
+            self.symbols[name] = symbol_type
+            return True
+        return False
 
 
+    def get(self, name):
+        if self.symbols[name]:
+            return self.symbols[name]
+        return "Not value"
 
+    def check(self, value):
+        if value in self.symbols.items():
+            return False
+        return True

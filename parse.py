@@ -20,7 +20,7 @@ class Parser:
     MULTIPLICATION, EXPRESSION_STATEMENT, ID_LPAREN, INTEGER, DOUBLE, CHAR, STRING, TRUE, FALSE, ID, \
     COMPARISON_EQ, COMPARISON_LE, COMPARISON_MO, COMPARISON_NOTEQ, FUNCT_STATEMENT, FUNCTIONCALL, LISTF, EOF, INTEGERT, DOUBLET, \
     STRINGT, CHART, BOOLEANT, DIMV, PROGRAM, AND, WHILE_BODY, CASE_BODY, TOCASE, CASE, \
-    CASE_ELSE, CASE_INNER_BODY, FOR_BODY, FOR = range(44) #?
+    CASE_ELSE, CASE_INNER_BODY, FOR_BODY, FOR, WRITELINE, WRITE = range(46) #?
 
     def __init__(self, lexer):
         self.file = open('Debugging.txt','w')
@@ -85,8 +85,10 @@ class Parser:
             return self.parse_select_statement()
         elif self.current_token.type == Lexer.FOR:
             return self.parse_for_statement()
-        elif self.current_token.type == Lexer.DIM:
-            return self.parse_dim_statement()
+        elif self.current_token.type == Lexer.CONSOLE:
+            return self.parse_console_statement()
+        # elif self.current_token.type == Lexer.DIM:
+        #     return self.parse_dim_statement()
         else:
             return self.parse_expression_statement()
 
@@ -177,6 +179,24 @@ class Parser:
             self.match(Lexer.DOUBLET)
             return double_value
         return Node(self.EOF, value="Not type")
+
+    def parse_console_statement(self):
+        self.match(Lexer.CONSOLE)
+        self.match(Lexer.DOT)
+        if self.current_token.type == Lexer.WRITELINE:
+            self.match(Lexer.WRITELINE)
+            self.match(Lexer.LBR)
+            expression = self.parse_type()
+            self.match(Lexer.RBR)
+            return Node(self.WRITELINE, value="WriteLine", children=[expression]) #write value separated by commas
+        elif self.current_token.type == Lexer.WRITE:
+            self.match(Lexer.WRITE)
+            self.match(Lexer.LBR)
+            expression = self.parse_type()
+            self.match(Lexer.RBR)
+            return Node(self.WRITE, value="Write", children=[expression])  # write value separated by commas
+        else:
+            self.error(f"Unexpected: {self.current_token.type}  {self.current_token.value} not function Console")
 
     def parse_dim_statement(self):
         self.match(Lexer.DIM)

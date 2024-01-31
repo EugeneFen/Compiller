@@ -13,14 +13,14 @@ class General_code:
 
         if VB_ast.type == Parser.PROGRAM:
             for i in range(len(VB_ast.children)):
-                print(f"{VB_ast.children} 1")
+                #print(f"{VB_ast.children} 1")
                 java_code += self.general_statement(VB_ast.children[i])
         print(java_code)
 
     def get_expression_list(self, VB_ast):
         java_code = ""
         for i in range(len(VB_ast.children)):
-            print(f"{VB_ast.children} 2")
+            #print(f"{VB_ast.children} 2")
             java_code += self.general_statement(VB_ast.children[i])
         return java_code
 
@@ -49,13 +49,13 @@ class General_code:
     def general_if_statement(self, VB_ast):
         condition = self.general_statement(VB_ast.children[0])
         if_body = self.get_expression_list(VB_ast.children[1]) #!!!!!!!!!!!!
-        java_code = f"If ({condition}) \n"
+        java_code = f"If ({condition}) "
         java_code += "{ \n"
         java_code += f"{if_body}"
         java_code += "} \n"
         if len(VB_ast.children) > 2:
             else_body = self.general_statement(VB_ast.children[2].children[0]) #!!!!!!!!!!!!!
-            java_code += f"Else \n"
+            java_code += f"Else "
             java_code += "{ \n"
             java_code += f"{else_body}"
             java_code += "} \n"
@@ -101,14 +101,17 @@ class General_code:
         return java_code
 
     def get_str_type_more(self, VB_ast):
-        str_type = self.get_str_type(VB_ast)
         if VB_ast.type == Parser.STRING or VB_ast.type == Parser.STRINGT:
             return "String"
         elif VB_ast.type == Parser.CHAR or VB_ast.type == Parser.CHART:
             return "char"
         elif VB_ast.type == Parser.BOOLEANT:
             return "boolean"
-        return str_type
+        elif VB_ast.type == Parser.INTEGERT or VB_ast.type == Parser.INTEGER:
+            return "int"
+        elif VB_ast.type == Parser.DOUBLET or VB_ast.type == Parser.DOUBLE:
+            return "double"
+        return self.error(f"Not type {VB_ast.value}")
 
     def get_str_type(self, VB_ast):
         if VB_ast.type == Parser.INTEGERT or VB_ast.type == Parser.INTEGER:
@@ -128,7 +131,7 @@ class General_code:
         java_code = f"{str_type} {VB_ast.children[0].value}"
         if len(VB_ast.children) == 3:
             java_code += f" = {VB_ast.children[2].value}"
-        java_code += ";"
+        java_code += "; \n"
         return java_code
 
     def get_expression(self, VB_ast):

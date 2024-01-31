@@ -3,7 +3,7 @@ import sys
 
 class General_code:
     def error(self, message):
-        print("Error: ", message)
+        print("Error general code: ", message)
         sys.exit(1)
 
     def generate_java_code(self, VB_ast):
@@ -11,7 +11,7 @@ class General_code:
 
         #print(VB_ast.node_type, " \n")
 
-        if VB_ast.node_type == Parser.PROGRAM:
+        if VB_ast.type == Parser.PROGRAM:
             for i in range(len(VB_ast.children)):
                 print(f"{VB_ast.children} 1")
                 java_code += self.general_statement(VB_ast.children[i])
@@ -26,19 +26,19 @@ class General_code:
 
     def general_statement(self, VB_ast):
         type_get = self.get_expression(VB_ast)
-        if VB_ast.node_type == Parser.IF_STATEMENT:
+        if VB_ast.type == Parser.IF_STATEMENT:
             return self.general_if_statement(VB_ast)
-        elif VB_ast.node_type == Parser.WHILE_STATEMENT:
+        elif VB_ast.type == Parser.WHILE_STATEMENT:
             return self.general_while_statement(VB_ast)
-        elif VB_ast.node_type == Parser.FOR:
+        elif VB_ast.type == Parser.FOR:
             return self.general_for_statement(VB_ast)
-        elif VB_ast.node_type == Parser.WRITE:
+        elif VB_ast.type == Parser.WRITE:
             return self.general_write_statement(VB_ast)
-        elif VB_ast.node_type == Parser.WRITELINE:
+        elif VB_ast.type == Parser.WRITELINE:
             return self.general_writeline_statement(VB_ast)
-        elif VB_ast.node_type == Parser.DIMV:
+        elif VB_ast.type == Parser.DIMV:
             return self.general_dim_statement(VB_ast)
-        elif VB_ast.node_type == Parser.EXPRESSION_STATEMENT:
+        elif VB_ast.type == Parser.EXPRESSION_STATEMENT:
             code = ""
             #print(len(VB_ast.children))
             for i in range(len(VB_ast.children)):
@@ -102,18 +102,18 @@ class General_code:
 
     def get_str_type_more(self, VB_ast):
         str_type = self.get_str_type(VB_ast)
-        if VB_ast.node_type == Parser.STRING or VB_ast.node_type == Parser.STRINGT:
+        if VB_ast.type == Parser.STRING or VB_ast.type == Parser.STRINGT:
             return "String"
-        elif VB_ast.node_type == Parser.CHAR or VB_ast.node_type == Parser.CHART:
+        elif VB_ast.type == Parser.CHAR or VB_ast.type == Parser.CHART:
             return "char"
-        elif VB_ast.node_type == Parser.BOOLEANT:
+        elif VB_ast.type == Parser.BOOLEANT:
             return "boolean"
         return str_type
 
     def get_str_type(self, VB_ast):
-        if VB_ast.node_type == Parser.INTEGERT or VB_ast.node_type == Parser.INTEGER:
+        if VB_ast.type == Parser.INTEGERT or VB_ast.type == Parser.INTEGER:
             return "int"
-        elif VB_ast.node_type == Parser.DOUBLET or VB_ast.node_type == Parser.DOUBLE:
+        elif VB_ast.type == Parser.DOUBLET or VB_ast.type == Parser.DOUBLE:
             return "double"
         return self.error(f"Not type {VB_ast.value}")
 
@@ -133,49 +133,49 @@ class General_code:
 
     def get_expression(self, VB_ast):
         term = self.get_special_words(VB_ast)
-        if VB_ast.node_type == Parser.ADDITION:
+        if VB_ast.type == Parser.ADDITION:
             if VB_ast.children[1].children:
                 chill = self.get_expression(VB_ast.children[1])
                 term = f"{VB_ast.children[0].value} + {chill}  "
             else:
                 term = f"{VB_ast.children[0].value} + {VB_ast.children[1].value}  "
-        elif VB_ast.node_type == Parser.SUBTRACTION:
+        elif VB_ast.type == Parser.SUBTRACTION:
             if VB_ast.children[1].children:
                 chill = self.get_expression(VB_ast.children[1])
                 term = f"{VB_ast.children[0].value} - {chill} \n"
             else:
                 term = f"{VB_ast.children[0].value} - {VB_ast.children[1].value} \n"
-        elif VB_ast.node_type == Parser.COMPARISON_EQ:
+        elif VB_ast.type == Parser.COMPARISON_EQ:
             if VB_ast.children[1].children:
                 chill = self.get_expression(VB_ast.children[1])
                 term = f"{VB_ast.children[0].value} = {chill} ;\n"
             else:
                 term = f"{VB_ast.children[0].value} = {VB_ast.children[1].value} ;\n"
-        elif VB_ast.node_type == Parser.COMPARISON_LE:
+        elif VB_ast.type == Parser.COMPARISON_LE:
             if VB_ast.children[1].children:
                 chill = self.get_expression(VB_ast.children[1])
                 term = f"{VB_ast.children[0].value} < {chill}  "
             else:
                 term = f"{VB_ast.children[0].value} < {VB_ast.children[1].value}  "
-        elif VB_ast.node_type == Parser.COMPARISON_MO:
+        elif VB_ast.type == Parser.COMPARISON_MO:
             if VB_ast.children[1].children:
                 chill = self.get_expression(VB_ast.children[1])
                 term = f"{VB_ast.children[0].value} > {chill}  "
             else:
                 term = f"{VB_ast.children[0].value} > {VB_ast.children[1].value}  "
-        elif VB_ast.node_type == Parser.COMPARISON_NOTEQ:
+        elif VB_ast.type == Parser.COMPARISON_NOTEQ:
             if VB_ast.children[1].children:
                 chill = self.get_expression(VB_ast.children[1])
                 term = f"{VB_ast.children[0].value} <> {chill}  "
             else:
                 term = f"{VB_ast.children[0].value} <> {VB_ast.children[1].value}  "
-        elif VB_ast.node_type == Parser.MULTIPLICATION:
+        elif VB_ast.type == Parser.MULTIPLICATION:
             if VB_ast.children[1].children:
                 chill = self.get_expression(VB_ast.children[1])
                 term = f"{VB_ast.children[0].value} * {chill} \n"
             else:
                 term = f"{VB_ast.children[0].value} * {VB_ast.children[1].value} \n"
-        elif VB_ast.node_type == Parser.DIVISION:
+        elif VB_ast.type == Parser.DIVISION:
             if VB_ast.children[1].children:
                 chill = self.get_expression(VB_ast.children[1])
                 term = f"{VB_ast.children[0].value} / {chill} \n"
@@ -185,7 +185,7 @@ class General_code:
 
     def get_special_words(self, VB_ast):
         special_words = self.get_code_type(VB_ast)
-        if VB_ast.node_type == Parser.AND:
+        if VB_ast.type == Parser.AND:
             first_element = self.get_expression(VB_ast.children[0])
             second_element = self.get_expression(VB_ast.children[1])
             special_words = f"{first_element} and {second_element}"
@@ -196,18 +196,18 @@ class General_code:
         return expression
 
     def get_code_type(self, VB_ast):
-        if VB_ast.node_type == Parser.ID or \
-              VB_ast.node_type == Parser.INTEGER or \
-              VB_ast.node_type == Parser.DOUBLE or \
-              VB_ast.node_type == Parser.STRING or \
-              VB_ast.node_type == Parser.CHAR or \
-              VB_ast.node_type == Parser.TRUE or \
-              VB_ast.node_type == Parser.INTEGERT or \
-              VB_ast.node_type == Parser.DOUBLET or \
-              VB_ast.node_type == Parser.STRINGT or \
-              VB_ast.node_type == Parser.CHART or \
-              VB_ast.node_type == Parser.FALSE or \
-              VB_ast.node_type == Parser.BOOLEANT:
+        if VB_ast.type == Parser.ID or \
+              VB_ast.type == Parser.INTEGER or \
+              VB_ast.type == Parser.DOUBLE or \
+              VB_ast.type == Parser.STRING or \
+              VB_ast.type == Parser.CHAR or \
+              VB_ast.type == Parser.TRUE or \
+              VB_ast.type == Parser.INTEGERT or \
+              VB_ast.type == Parser.DOUBLET or \
+              VB_ast.type == Parser.STRINGT or \
+              VB_ast.type == Parser.CHART or \
+              VB_ast.type == Parser.FALSE or \
+              VB_ast.type == Parser.BOOLEANT:
             code = VB_ast.value
             return code
         return f"Not value type {VB_ast.value}"

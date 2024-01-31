@@ -17,12 +17,13 @@ class Lexer:
     curr_char: str
 
     MODULE, NUM, ID, EOF, ENDSELECT, INTEGER, DOUBLE, STRING, CHAR, BOOLEAN, \
-    FOR, NEXT, STEP, EACH, WHILE, DO, UNTIL, LOOP, IF, LBR, \
-    RBR, PLUS, MINUS, MUL, DIVIDE, DEGREE, MORE, LESS, EQUAL, NOTEQUALS, \
-    LCB, RCB, COMMA, AND, OR, NOT, THEN, ELSE, ELSEIF, SELECT, \
-    CASE, FUNCTION, UPCOMMAS, RETURN, SUB, NEW, FROM, ADD, REMOVE, INDEXOF, \
-    DIM, AS, TO, IN, TRUE, FALSE, ENDIF, ENDFUNC, ENDSUB, ENDMODULE, \
-    FUNCTIONCALL, ENDWHILE, LISTF, OF, INTEGERT, DOUBLET, STRINGT, CHART, BOOLEANT, UPCOM=  range(70)
+        FOR, NEXT, STEP, EACH, WHILE, DO, UNTIL, LOOP, IF, LBR, \
+        RBR, PLUS, MINUS, MUL, DIVIDE, DEGREE, MORE, LESS, EQUAL, NOTEQUALS, \
+        LCB, RCB, COMMA, AND, OR, NOT, THEN, ELSE, ELSEIF, SELECT, \
+        CASE, FUNCTION, UPCOMMAS, RETURN, SUB, NEW, FROM, ADD, REMOVE, INDEXOF, \
+        DIM, AS, TO, IN, TRUE, FALSE, ENDIF, ENDFUNC, ENDSUB, ENDMODULE, \
+        FUNCTIONCALL, ENDWHILE, LISTF, OF, INTEGERT, DOUBLET, STRINGT, CHART, BOOLEANT, UPCOM, \
+        DOT, CONSOLE, WRITELINE, WRITE = range(74)
 
     SYMBOLS = {
         '(': LBR,
@@ -40,10 +41,11 @@ class Lexer:
         '}': RCB,
         ',': COMMA,
         '"': UPCOMMAS,
-        "'": UPCOM
+        "'": UPCOM,
+        '.': DOT #*
     }
 
-    WORDS  = {
+    WORDS = {
         'And': AND,
         'Or': OR,
         'Not': NOT,
@@ -91,6 +93,9 @@ class Lexer:
         'In': IN, #!!!!
         'True': TRUE,
         'False': FALSE,
+        'Console': CONSOLE, #*
+        'WriteLine': WRITELINE, #*
+        'Write': WRITE #*
     }
 
     def __init__(self, text) -> None:
@@ -220,16 +225,16 @@ class Lexer:
                         self.value = variable
                     else:
                         self.error(f'Unexpected: {variable}')
-                elif self.curr_char == '(':
-                    variable += self.curr_char
-                    self.get_char()
-                    if self.curr_char == ')':
-                        variable += self.curr_char
-                        self.get_char()
-                        self.state = Lexer.FUNCTIONCALL
-                        self.value = variable
-                    else:
-                        self.error(f'Unexpected symbol: {self.curr_char}')
+                # elif self.curr_char == '(':
+                #     variable += self.curr_char
+                #     self.get_char()
+                #     if self.curr_char == ')':
+                #         variable += self.curr_char
+                #         self.get_char()
+                #         self.state = Lexer.FUNCTIONCALL
+                #         self.value = variable
+                #     else:
+                #         self.error(f'Unexpected symbol: {self.curr_char}')
                 elif variable in Lexer.WORDS:
                     self.state = Lexer.WORDS[variable]
                     self.value = variable

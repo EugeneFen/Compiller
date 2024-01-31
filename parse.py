@@ -16,6 +16,8 @@ class Node:
         return f"Node: Type={self.type}, Value={self.value}, Children={self.children}"
 
 class Parser:
+    symbol_table = SymbolTable()
+
     START, MODULE, ELSE_STATEMENT, IF_STATEMENT, THEN_STATEMENT, WHILE_STATEMENT, PROGRAM, ADDITION, SUBTRACTION, DIVISION, \
     MULTIPLICATION, EXPRESSION_STATEMENT, ID_LPAREN, INTEGER, DOUBLE, CHAR, STRING, TRUE, FALSE, ID, \
     COMPARISON_EQ, COMPARISON_LE, COMPARISON_MO, COMPARISON_NOTEQ, FUNCT_STATEMENT, FUNCTIONCALL, LISTF, EOF, INTEGERT, DOUBLET, \
@@ -32,8 +34,6 @@ class Parser:
         self.file.write(self.current_token.value)
         self.file.write("\n")
 
-        self.symbol_table = SymbolTable()
-
     def close_f(self):
         self.file.close()
 
@@ -44,21 +44,23 @@ class Parser:
     def match(self, expected_type): #requests a new token from the lexer
         if self.current_token.type == expected_type:
                 self.current_token = self.lexer.get_token()
-                #print(f"{self.current_token.value}  match")
+               # print(f"{self.current_token.value} value, {self.current_token.type} type")
                 self.file.write(str(self.current_token.type))
                 self.file.write(" , ")
                 self.file.write(str(self.current_token.value))
                 self.file.write("\n")
         else:
             self.error(f"Unexpected token: row = {self.lexer.row}, col = {self.lexer.col} : type = {self.current_token.type}  value = {self.current_token.value}")
-            
+
     def parse(self): # start
         return self.parse_program()
 
     def parse_program(self):
 
-        statement_list = self.parse_statement_list()
-        return Node(self.PROGRAM, value = "Program", children=[statement_list])
+        statement_list = Node(self.PROGRAM, value = "Program", children=[])
+        while self.current_token.type != Lexer.EOF:
+            statement_list.add_child(self.parse_statement())
+        return statement_list
 
     def parse_statement_list(self):
         statement = self.parse_statement()
@@ -70,7 +72,8 @@ class Parser:
             self.current_token.type != Lexer.CASE and \
             self.current_token.type != Lexer.ENDFUNC and \
             self.current_token.type != Lexer.NEXT and \
-            self.current_token.type != Lexer.ENDWHILE:
+            self.current_token.type != Lexer.ENDWHILE and \
+            statement.type != self.DIMV:
                 #print(f"{self.current_token.value} 3")
                 statement.add_child(self.parse_statement_list())
         return statement
@@ -203,6 +206,7 @@ class Parser:
         value = self.parse_identifier()
         if self.symbol_table.check(value.value):
             self.match(Lexer.AS)
+            print(self.symbol_table.symbols.get(value.value))
             type_list = self.parse_type_str()
             self.symbol_table.set(value.value, type_list.value)
             if self.current_token.type == Lexer.EQUAL:

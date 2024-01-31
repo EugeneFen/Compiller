@@ -5,7 +5,7 @@ from symboltable import SymbolTable
 
 class Node:
     def __init__(self, node_type, value=None, children=None):
-        self.node_type = node_type
+        self.type = node_type
         self.value = value
         self.children = children if children else []
 
@@ -13,7 +13,7 @@ class Node:
         self.children.append(child)
 
     def __repr__(self):
-        return f"Node: Type={self.node_type}, Value={self.value}, Children={self.children}"
+        return f"Node: Type={self.type}, Value={self.value}, Children={self.children}"
 
 class Parser:
     START, MODULE, ELSE_STATEMENT, IF_STATEMENT, THEN_STATEMENT, WHILE_STATEMENT, PROGRAM, ADDITION, SUBTRACTION, DIVISION, \
@@ -44,13 +44,13 @@ class Parser:
     def match(self, expected_type): #requests a new token from the lexer
         if self.current_token.type == expected_type:
                 self.current_token = self.lexer.get_token()
-                print(f"{self.current_token.value}  match")
+                #print(f"{self.current_token.value}  match")
                 self.file.write(str(self.current_token.type))
                 self.file.write(" , ")
                 self.file.write(str(self.current_token.value))
                 self.file.write("\n")
         else:
-            self.error(f"Unexpected token: {self.current_token.type}  {self.current_token.value}")
+            self.error(f"Unexpected token: row = {self.lexer.row}, col = {self.lexer.col} : type = {self.current_token.type}  value = {self.current_token.value}")
             
     def parse(self): # start
         return self.parse_program()
@@ -87,8 +87,8 @@ class Parser:
             return self.parse_for_statement()
         elif self.current_token.type == Lexer.CONSOLE:
             return self.parse_console_statement()
-        # elif self.current_token.type == Lexer.DIM:
-        #     return self.parse_dim_statement()
+        elif self.current_token.type == Lexer.DIM:
+            return self.parse_dim_statement()
         else:
             return self.parse_expression_statement()
 
@@ -196,7 +196,7 @@ class Parser:
             self.match(Lexer.RBR)
             return Node(self.WRITE, value="Write", children=[expression])  # write value separated by commas
         else:
-            self.error(f"Unexpected: {self.current_token.type}  {self.current_token.value} not function Console")
+            self.error(f"Unexpected:row = {self.lexer.row}, col = {self.lexer.col} : type = {self.current_token.type}  value = {self.current_token.value} not function Console")
 
     def parse_dim_statement(self):
         self.match(Lexer.DIM)
@@ -208,9 +208,21 @@ class Parser:
             if self.current_token.type == Lexer.EQUAL:
                 self.match(Lexer.EQUAL)
                 ptype = self.parse_type()
-                return Node(self.DIMV, value="DIMVAL", children=[value, type_list, ptype])
+                if self.parse_comparison(type_list, ptype):
+                    return Node(self.DIMV, value="DIMVAL", children=[value, type_list, ptype])
+                else:
+                    self.error(f"This variable exists: row = {self.lexer.row}, col = {self.lexer.col} : type = {type_list.value}  value = {ptype.value}")
             return Node(self.DIMV, value="DIMVAL", children=[value, type_list])
-        self.error(f"This variable already exists: {value.value}")
+        self.error(f"This variable already exists: row = {self.lexer.row}, col = {self.lexer.col} : type = {self.current_token.type}  value = {self.current_token.value}")
+
+    def parse_comparison(self, str_type, ptype):
+        if (str_type.type == self.INTEGERT and ptype.type == self.INTEGER) or \
+                (str_type.type == self.DOUBLET and ptype.type == self.DOUBLE) or \
+                (str_type.type == self.STRINGT and ptype.type == self.STRING) or \
+                (str_type.type == self.CHART and ptype.type == self.CHAR) or \
+                ((ptype.type == self.TRUE or ptype.type == self.FALSE) and str_type.type == self.BOOLEANT):
+            return True
+        return False
 
     def parse_exp_case(self):
         ptype = self.parse_type()

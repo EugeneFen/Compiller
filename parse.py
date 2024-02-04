@@ -56,7 +56,6 @@ class Parser:
         return self.parse_program()
 
     def parse_program(self):
-
         statement_list = Node(self.PROGRAM, value = "Program", children=[])
         while self.current_token.type != Lexer.EOF:
             statement_list.add_child(self.parse_statement())
@@ -73,7 +72,8 @@ class Parser:
             self.current_token.type != Lexer.ENDFUNC and \
             self.current_token.type != Lexer.NEXT and \
             self.current_token.type != Lexer.ENDWHILE and \
-            statement.type != self.DIMV:
+            statement.type != self.DIMV and \
+            statement.type != self.WHILE_STATEMENT:
                 #print(f"{self.current_token.value} 3")
                 statement.add_child(self.parse_statement_list())
         return statement
@@ -101,10 +101,14 @@ class Parser:
         expression = self.parse_expression()
         self.match(Lexer.RBR)
         self.match(Lexer.THEN)
-        statement_list = Node(self.THEN_STATEMENT, value="Then", children=[self.parse_statement_list()])
+        statement_list = Node(self.THEN_STATEMENT, value="Then", children=[])
+        while self.current_token.type != Lexer.ELSE:
+            statement_list.add_child(self.parse_statement())
         if self.current_token.type == Lexer.ELSE:
             self.match(Lexer.ELSE)
-            else_statement = Node(self.ELSE_STATEMENT, value="Else", children=[self.parse_statement_list()])
+            else_statement = Node(self.ELSE_STATEMENT, value="Else", children=[])
+            while self.current_token.type != Lexer.ENDIF:
+                else_statement.add_child(self.parse_statement())
             self.match(Lexer.ENDIF)
             return Node(self.IF_STATEMENT, value="If", children=[expression, statement_list, else_statement])
         self.match(Lexer.ENDIF)
@@ -115,7 +119,9 @@ class Parser:
         self.match(Lexer.LBR)
         expression = self.parse_expression()
         self.match(Lexer.RBR)
-        statement_list =Node(self.WHILE_BODY, value="Body", children=[self.parse_statement_list()])
+        statement_list = Node(self.WHILE_BODY, value="Body", children=[])
+        while self.current_token.type != Lexer.ENDWHILE:
+            statement_list.add_child(self.parse_statement())
         self.match(Lexer.ENDWHILE)
         return Node(self.WHILE_STATEMENT, value="While", children=[expression, statement_list])
 
@@ -161,7 +167,9 @@ class Parser:
         first_value = self.parse_type()
         self.match(Lexer.TO)
         second_value = self.parse_type()
-        body_for = Node(self.FOR_BODY, value="For_Body", children=[self.parse_statement_list()])
+        body_for = Node(self.FOR_BODY, value="For_Body", children=[])
+        while self.current_token.type != Lexer.NEXT:
+            body_for.add_child(self.parse_statement())
         self.match(Lexer.NEXT)
         if int(first_value.value) > int(second_value.value):
             up_down = Node(self.STRING, value="down", children=[])

@@ -31,7 +31,7 @@
 
 <factor> ::= <type> | '(' <expression> ')' | <id>
 
-<type> ::= <integer> | <string> | <char> | <boolean>
+<type> ::= <integer> | <string> | <char> | <boolean> | <double>
 <type_str> ::= Integer | String | Char | Boolean
 
 <relational_operator> ::= '=' | '<>' | '<' | '>'
@@ -42,9 +42,12 @@
 <count> ::= <number><count> | <number>
 <id> ::= <letter> | <letter><id2>
 <id2> ::= <letter> | <number> | <number><id2> | <letter><id2> | "_"<id2>
-<integer> ::= <number> | <number><int>
+<integer> ::= <number> | <number><integer>
 <string> ::= <letter> | <letter><string> | <number> | <number><string>
 <char> ::= <letter>
+<double> ::= <number> | <number><double> | <double><dot>
+<dot> ::= .<double_number>
+<double_number> ::= <number> | <number><double_number>
 <boolean> ::= True | False
 <letter> ::= "a" | "b" | ... | "z"
 <number> ::= "1" | "2" | ... | "9" | "0"

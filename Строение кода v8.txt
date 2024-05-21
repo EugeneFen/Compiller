@@ -43,7 +43,7 @@
 <id> ::= <letter> | <letter><id2>
 <id2> ::= <letter> | <number> | <number><id2> | <letter><id2> | "_"<id2>
 <integer> ::= <number> | <number><int>
-<string> ::= <letter> | <letter><string> *************************************************
+<string> ::= <letter> | <letter><string> | <number> | <number><string>
 <char> ::= <letter>
 <boolean> ::= True | False
 <letter> ::= "a" | "b" | ... | "z"
